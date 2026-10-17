@@ -2,23 +2,23 @@ plugins {
     id 'net.fabricmc.fabric-loom' version '1.18.1'
 }
 
-version = '1.1.0'
+version = project.mod_version
 group = 'com.imdomestic.vex.example'
 
 repositories { mavenCentral() }
 
 dependencies {
-    minecraft 'com.mojang:minecraft:26.3'
-    implementation 'net.fabricmc:fabric-loader:0.19.5'
-    implementation 'net.fabricmc.fabric-api:fabric-api:0.161.0+26.3'
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    implementation "net.fabricmc:fabric-loader:${project.fabric_loader_version}"
+    implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
     testImplementation 'org.junit.jupiter:junit-jupiter:6.1.3'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
-java { toolchain.languageVersion = JavaLanguageVersion.of(25) }
+java { toolchain.languageVersion = JavaLanguageVersion.of(project.java_version.toInteger()) }
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
-    options.release = 25
+    options.release = project.java_version.toInteger()
 }
 tasks.withType(AbstractArchiveTask).configureEach {
     preserveFileTimestamps = false
@@ -26,6 +26,14 @@ tasks.withType(AbstractArchiveTask).configureEach {
 }
 processResources {
     inputs.property 'version', project.version
-    filesMatching('fabric.mod.json') { expand version: project.version }
+    inputs.property 'minecraft_version', project.minecraft_version
+    inputs.property 'java_version', project.java_version
+    inputs.property 'fabric_loader_version', project.fabric_loader_version
+    filesMatching('fabric.mod.json') {
+        expand version: project.version,
+            minecraft_version: project.minecraft_version,
+            java_version: project.java_version,
+            fabric_loader_version: project.fabric_loader_version
+    }
 }
 test { useJUnitPlatform() }
