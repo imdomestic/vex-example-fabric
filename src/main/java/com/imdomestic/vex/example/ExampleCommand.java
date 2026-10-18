@@ -8,7 +8,7 @@ import net.minecraft.network.chat.Component;
 final class ExampleCommand {
     static LiteralArgumentBuilder<CommandSourceStack> command() {
         return Commands.literal("vexexample").executes(context -> {
-            context.getSource().sendSuccess(() -> Component.literal("Vex Example v2"), false);
+            context.getSource().sendSuccess(() -> Component.literal(VexExample.PREVIEW_MARKER), false);
             return 1;
         });
     }
