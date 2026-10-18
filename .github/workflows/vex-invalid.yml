@@ -1,0 +1,61 @@
+name: Vex artifact rejection checks
+
+on:
+  push:
+    branches: [test/vex-invalid-artifacts]
+
+permissions:
+  contents: read
+
+jobs:
+  artifacts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      TMPDIR: ${{ github.workspace }}/.work/tmp
+      JAVA_TOOL_OPTIONS: -Djava.io.tmpdir=${{ github.workspace }}/.work/tmp
+      PYTHONDONTWRITEBYTECODE: "1"
+      CI: "true"
+    steps:
+      - name: Prepare temporary directory
+        run: mkdir -p "$GITHUB_WORKSPACE/.work/tmp"
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+          clean: false
+      - name: Prepare build temporary directory
+        run: mkdir -p "$GITHUB_WORKSPACE/.work/tmp"
+      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961
+        with:
+          distribution: temurin
+          java-version: "25"
+          cache: gradle
+      - name: Build real mod
+        run: ./gradlew build --no-daemon
+      - uses: imdomestic/vex-action@8ff4dbed05ef06d4341ed51c6b53c99f88bcb158
+        with:
+          mode: build
+          artifact: vex-reference
+      - name: Create isolated invalid bundles
+        run: python3 -B .github/vex-invalid-artifacts.py .work/vex-bundle .work/invalid-artifacts
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          path: .work/invalid-artifacts/bad-path.zip
+          archive: false
+          if-no-files-found: error
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          path: .work/invalid-artifacts/bad-size.zip
+          archive: false
+          if-no-files-found: error
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          path: .work/invalid-artifacts/bad-hash.zip
+          archive: false
+          if-no-files-found: error
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          path: .work/invalid-artifacts/bad-metadata.zip
+          archive: false
+          if-no-files-found: error
