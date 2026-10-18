@@ -1,8 +1,6 @@
-name: Vex build
+name: Vex fork approval acceptance
 
 on:
-  push:
-    branches: [main]
   pull_request:
 
 permissions:
