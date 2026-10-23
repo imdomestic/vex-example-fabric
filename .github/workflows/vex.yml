@@ -33,7 +33,7 @@ jobs:
           cache: gradle
       - name: Build project
         run: ./gradlew build --no-daemon
-      - uses: imdomestic/vex-action@8ff4dbed05ef06d4341ed51c6b53c99f88bcb158
+      - uses: imdomestic/vex-action@bbee986ecdc7860b25764d0e0275e2cd3adc776d
         with:
           mode: build
           artifact: vex-build
